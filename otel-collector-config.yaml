@@ -1,0 +1,60 @@
+# OTLP Collector - единая точка приёма traces, metrics, logs
+# Маршрутизация: traces → Tempo, metrics → Prometheus, logs → Loki
+# spanmetrics connector генерирует RED-метрики из трейсов
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 256
+    spike_limit_mib: 64
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+
+connectors:
+  spanmetrics:
+    dimensions:
+      - name: http.method
+      - name: http.route
+      - name: http.status_code
+
+exporters:
+  # Traces → Tempo (otlp_grpc replaces deprecated otlp alias)
+  otlp_grpc/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Metrics → Prometheus (remote write)
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    add_metric_suffixes: false
+
+  # Logs → Loki через native OTLP (Loki 3.x) (otlp_http replaces deprecated otlphttp alias)
+  otlp_http/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_grpc/tempo, spanmetrics]
+    metrics:
+      receivers: [otlp, spanmetrics]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_http/loki]

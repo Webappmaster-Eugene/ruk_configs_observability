@@ -1,0 +1,12 @@
+# Prometheus - приём метрик через Remote Write от OTLP Collector
+# Grafana читает метрики из Prometheus
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Remote write receiver - принимает метрики от OTLP Collector
+# Включается через флаг --web.enable-remote-write-receiver
+
+# Пустой scrape_configs - метрики приходят только через remote write
+scrape_configs: []

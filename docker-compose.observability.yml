@@ -1,0 +1,84 @@
+# Инфраструктура наблюдаемости: OTLP Collector + Tempo + Loki + Prometheus + Grafana
+# Deploy в Dokploy: только Grafana доступна извне (через Traefik + домен)
+# referal-api и другие приложения шлют OTLP на otel-collector:4318 через dokploy-network
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.145.0
+    command: ["--config=/etc/otelcol/config.yaml", "--set=service.telemetry.logs.level=debug"]
+    volumes:
+      - ../files/otel:/etc/otelcol
+    networks:
+      - observability
+      - dokploy-network
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.10.0
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    volumes:
+      - ../files/tempo:/etc/tempo
+      - tempo-data:/var/tempo
+    networks:
+      - observability
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.6.5
+    user: "0"
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ../files/loki:/etc/loki
+      - loki-data:/var/loki
+    networks:
+      - observability
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.9.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-remote-write-receiver
+      - --web.enable-lifecycle
+    volumes:
+      - ../files/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - observability
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.3.2
+    expose:
+      - "3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=/
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - ../files/grafana-provisioning:/etc/grafana/provisioning
+      - ../files/grafana-dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+    networks:
+      - observability
+      - dokploy-network
+    restart: unless-stopped
+
+networks:
+  observability:
+    driver: bridge
+  dokploy-network:
+    external: true
+
+volumes:
+  tempo-data:
+  loki-data:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,14 @@
+# Grafana - provisioning дашбордов (Observability для referal-api)
+apiVersion: 1
+
+providers:
+  - name: 'Observability'
+    orgId: 1
+    folder: 'Observability'
+    folderUid: 'observability'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,183 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"$service\"}[5m]))",
+          "legendFormat": "Spans/sec (total)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"$service\", status_code=\"STATUS_CODE_ERROR\"}[5m]))",
+          "legendFormat": "Error spans/sec",
+          "refId": "B"
+        }
+      ],
+      "title": "Span Rate over Time (from spanmetrics)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Start time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 20,
+          "tableType": "search",
+          "query": "{ resource.service.name = \"$service\" }"
+        }
+      ],
+      "title": "Trace Search",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 16 },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Start time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 20,
+          "tableType": "search",
+          "query": "{ resource.service.name = \"$service\" status = error }"
+        }
+      ],
+      "title": "Error Traces",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 16 },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Duration" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 20,
+          "tableType": "search",
+          "query": "{ resource.service.name = \"$service\" } | duration > 100ms"
+        }
+      ],
+      "title": "Slowest Traces (> 100ms)",
+      "type": "table"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["observability", "referal-api", "traces"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "rukki-backend",
+          "value": "rukki-backend"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Service",
+        "multi": false,
+        "name": "service",
+        "options": [
+          {
+            "selected": true,
+            "text": "rukki-backend",
+            "value": "rukki-backend"
+          },
+          {
+            "selected": false,
+            "text": "referal-backend",
+            "value": "referal-backend"
+          }
+        ],
+        "query": "rukki-backend, referal-backend",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Traces - rukki-backend",
+  "uid": "traces-rukki-backend",
+  "version": 1
+}
