@@ -105,7 +105,7 @@
           "refId": "A",
           "limit": 20,
           "tableType": "search",
-          "query": "{ resource.service.name = \"$service\" status = error }"
+          "query": "{ resource.service.name = \"$service\" && status = error }"
         }
       ],
       "title": "Error Traces",
@@ -128,7 +128,7 @@
           "refId": "A",
           "limit": 20,
           "tableType": "search",
-          "query": "{ resource.service.name = \"$service\" } | duration > 100ms"
+          "query": "{ resource.service.name = \"$service\" && duration > 100ms }"
         }
       ],
       "title": "Slowest Traces (> 100ms)",
