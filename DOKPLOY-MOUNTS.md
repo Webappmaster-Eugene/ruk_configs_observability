@@ -22,6 +22,20 @@ Dokploy создаёт файлы в `../files/`. При File Path `otel/config.
 
 ---
 
+## Обновление дашборда метрик
+
+Чтобы увидеть новые панели (RabbitMQ, Redis, HTTP, Node.js и т.д.) на сервере:
+
+1. **Dokploy** → приложение Observability → **Advanced** → **Volumes** (File Mounts)
+2. Найти mount `grafana-dashboards/metrics.json` и обновить **Content** содержимым из `observability/grafana/dashboards/metrics.json` в репо
+3. **Redeploy**
+4. Подождать 30 секунд (Grafana обновляет дашборды каждые 30 сек)
+5. Обновить страницу дашборда в браузере (Ctrl+F5)
+
+При «No data» в панелях: Grafana → Explore → Prometheus → выполнить `{job=~"rukki-backend|referal-backend"}` и проверить, что метрики приходят из бэкенда.
+
+---
+
 ## Порядок действий
 
 1. **Удалить старые** File Mount в Dokploy (если есть).

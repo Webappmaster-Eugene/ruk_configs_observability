@@ -46,19 +46,9 @@ referal-backend должен быть в `dokploy-network`, а не в `network_
 
 ## Конфиги (mount в Dokploy)
 
-| Файл | Mount Path (Dokploy) |
-|------|----------------------|
-| otel-collector-config.yaml | ../files/otel-collector-config.yaml |
-| tempo-config.yaml | ../files/tempo-config.yaml |
-| loki-config.yaml | ../files/loki-config.yaml |
-| prometheus.yml | ../files/prometheus.yml |
-| datasources.yml | ../files/datasources.yml |
-| dashboards.yml | ../files/dashboards.yml |
-| metrics.json | ../files/metrics.json |
-| traces.json | ../files/traces.json |
-| logs.json | ../files/logs.json |
+Полная таблица File Mounts и порядок настройки — см. [DOKPLOY-MOUNTS.md](DOKPLOY-MOUNTS.md).
 
-Пути в compose — `../files/<filename>`.
+Кратко: 9 File Mounts, структура `grafana-provisioning/{datasources,dashboards}`, `grafana-dashboards/*.json`. При обновлении дашборда метрик обновите `grafana-dashboards/metrics.json` и redeploy.
 
 ## Локальный запуск
 
